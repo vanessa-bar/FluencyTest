@@ -1,24 +1,116 @@
-import { FLUENCY_WORDS } from "./textFluence.js";
-
 const TEST_DURATION = 60; // Durée du test en secondes
 
-const FluencyTest = class {
+const MainApp = class {
+	constructor() {}
+
 	static initialize() {
-		const fluencyTest = new FluencyTest();
-		fluencyTest.show();
+		const textSelection = new TextSelection('./texts');
+		textSelection.show();
+	}
+};
+
+const Utils = class {
+	static createDiv(id) {
+		const div = document.createElement("div");
+		div.id = id;
+		return div;
 	}
 
-	constructor() {
+	static createP(text, useClass = null) {
+		const p = document.createElement("p");
+		p.innerHTML = text;
+		if (useClass) p.classList.add(useClass);
+		return p;
+	}
+
+	static createButton(text, id) {
+		const div = document.createElement("div");
+		div.id = id;
+		div.innerHTML = text;
+		div.classList.add("button");
+		return div;
+	}
+
+	static clearContainer() {
+		document.getElementById("container").innerHTML = "";
+	}
+
+	static containerAddChild(child) {
+		Utils.clearContainer();
+		document.getElementById("container").appendChild(child);
+	}
+};
+
+const Parser = class {
+	static parse(file) {
+		return new Promise((accept, reject) => {
+			const reader = new FileReader();
+	        reader.onload = (e) => {
+	            const contents = reader.result;
+	            const lines = contents.split('\n');
+	       
+	       		accept(lines);
+	        };
+	        reader.readAsText(file);
+		});
+	}
+};
+
+const TextSelection = class {
+	constructor(root) {
+		this._root = root;
+		this.createView();
+	}
+
+	createView() {
+		this._parent = document.createElement("div");
+		const text = Utils.createP("Veuillez choisir le texte que vous souhaitez utiliser pour le test <i>(seuls les fichiers .txt sont autorisés)</i> :");
+
+		const input = document.createElement("input");
+		input.setAttribute("type", "file");
+		input.setAttribute("accept", "text/txt");
+		this._textSelector = input;
+
+		this._parent.append(text);
+		this._parent.append(input);
+	}
+
+	show() {
+		Utils.containerAddChild(this._parent);
+		this.addEventListeners();
+	}
+
+	addEventListeners() {
+		this._textSelector.addEventListener("change", this.onChangeTextSelector.bind(this));
+	}
+
+	async onChangeTextSelector(e) {
+		if (this._textSelector.files.length > 0) {
+			const file = this._textSelector.files[0];	
+			const lines = await Parser.parse(file);
+			const fluencyTest = new FluencyTest(lines);
+			fluencyTest.show();
+		}
+	}
+};
+
+const FluencyTest = class {
+	constructor(words) {
+		this._words = words;
 		this._wrongWords = [];
 		this._mode = "reading";
 		this._lastWord = -1;
 
-		this._view = new View(this);		
+		this._view = new FluencyTestView(this);		
 	}
 
 	show() {
 		this._view.show();
 		this.lanceChrono();
+	}
+
+	getWords() {
+		return this._words;
 	}
 
 	clearChrono(isReset = false) {
@@ -98,14 +190,15 @@ const FluencyTest = class {
 	}
 };
 
-const View = class {
+const FluencyTestView = class {
 	constructor(fluencyTest) {
 		this._fluencyTest = fluencyTest;
-		this._create();
+		this._words = fluencyTest.getWords();
+		this.create();
 	}
 
 	show() {
-		document.getElementById("container").appendChild(this._parent);
+		Utils.containerAddChild(this._parent);
 		this.addEventListeners();
 	}
 
@@ -115,15 +208,15 @@ const View = class {
 		this._resetButton.addEventListener("click", this._fluencyTest.onClickReset.bind(this._fluencyTest));
 	}
 
-	_create() {
+	create() {
 		this._parent = document.createElement("div");
-		this._chronoDiv = this._createChrono();
-		this._textDiv = this._createDiv("textContainer");
-		this._endButton = this._createButton("Terminer le test", "endButton");
-		this._endDiv = this._createDiv("endContainer");
-		this._resetButton = this._createButton("Réinitialiser le test", "resetButton");
+		this._chronoDiv = this.createChrono();
+		this._textDiv = Utils.createDiv("textContainer");
+		this._endButton = Utils.createButton("Terminer le test", "endButton");
+		this._endDiv = Utils.createDiv("endContainer");
+		this._resetButton = Utils.createButton("Réinitialiser le test", "resetButton");
 
-		this._textDiv.appendChild(this._createText());
+		this._textDiv.appendChild(this.createText());
 		this._parent.appendChild(this._chronoDiv);
 		this._parent.appendChild(this._textDiv);
 		this._parent.appendChild(this._endButton);
@@ -131,28 +224,15 @@ const View = class {
 		this._parent.appendChild(this._resetButton);
 	}
 
-	_createDiv(id) {
-		const div = document.createElement("div");
-		div.id = id;
-		return div;
-	}
+	createChrono() {
+		const chronoDiv = Utils.createDiv("chronoContainer");
 
-	_createP(text, useClass = null) {
-		const p = document.createElement("p");
-		p.innerHTML = text;
-		if (useClass) p.classList.add(useClass);
-		return p;
-	}
-
-	_createChrono() {
-		const chronoDiv = this._createDiv("chronoContainer");
-
-		const textElement = this._createDiv("chronoText");
+		const textElement = Utils.createDiv("chronoText");
 		textElement.innerHTML = TEST_DURATION;
 		this._chronoText = textElement;
 
-		const chronoBox = this._createDiv("chronoBox");
-		const chronoPercent = this._createDiv("chronoPercent");
+		const chronoBox = Utils.createDiv("chronoBox");
+		const chronoPercent = Utils.createDiv("chronoPercent");
 		this._chronoPercent = chronoPercent;
 
 		chronoBox.appendChild(this._chronoPercent);
@@ -162,23 +242,15 @@ const View = class {
 		return chronoDiv;
 	}
 
-	_createText() {
+	createText() {
 		const fragment = new DocumentFragment();
-		for (let i = 0; i < FLUENCY_WORDS.length; i++) {
+		for (let i = 0; i < this._words.length; i++) {
 			const span = document.createElement("span");
-			span.innerHTML = FLUENCY_WORDS[i];
+			span.innerHTML = this._words[i];
 			span.dataset.id = i;
 			fragment.appendChild(span);
 		}
 		return fragment;
-	}
-
-	_createButton(text, id) {
-		const div = document.createElement("div");
-		div.id = id;
-		div.innerHTML = text;
-		div.classList.add("button");
-		return div;
 	}
 
 	updateChrono(time) {
@@ -193,7 +265,7 @@ const View = class {
 
 	prepareEnd(isPrepared = true) {
 		if (isPrepared) {
-			const instructions = this._createP("Cliquer sur le dernier mot lu pour afficher les résultats", "italic");
+			const instructions = Utils.createP("Cliquer sur le dernier mot lu pour afficher les résultats", "italic");
 			this._endDiv.appendChild(instructions);
 			this._endButton.innerHTML = "Modifier les fautes";
 		} else {
@@ -219,11 +291,11 @@ const View = class {
 	showEnd(remainingTime, totalReadWords, totalWrongWords) {
 		this._endDiv.innerHTML = "";
 
-		const title = this._createP("Résultats :", "italic");
-		const time = this._createP(`Temps: ${TEST_DURATION - remainingTime} secondes`);
-		const readWords = this._createP(`Nombre de mots lus : ${totalReadWords}`);
-		const wrongWords = this._createP(`Erreurs : ${totalWrongWords}`);
-		const fluencyScore = this._createP(`Score de fluence : ${totalReadWords - totalWrongWords}`, "bold");
+		const title = Utils.createP("Résultats :", "italic");
+		const time = Utils.createP(`Temps: ${TEST_DURATION - remainingTime} secondes`);
+		const readWords = Utils.createP(`Nombre de mots lus : ${totalReadWords}`);
+		const wrongWords = Utils.createP(`Erreurs : ${totalWrongWords}`);
+		const fluencyScore = Utils.createP(`Score de fluence : ${totalReadWords - totalWrongWords}`, "bold");
 
 		this._endDiv.appendChild(title);
 		this._endDiv.appendChild(time);
@@ -242,5 +314,5 @@ const View = class {
 	}
 };
 
-window.FluencyTest = FluencyTest;
-FluencyTest.initialize();
+MainApp.initialize();
+// FluencyTest.initialize();

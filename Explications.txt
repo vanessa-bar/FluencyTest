@@ -1,3 +1,4 @@
-Coucou !
-Pour lancer un test de fluence, il suffit d'ouvrir index.html dans ton navigateur.
-Pour modifier le texte, ouvre le fichier textFluence.js et ajoute les mots dans le tableau (entre des guillemets).
+Pour lancer un test de fluence, il suffit d'ouvrir index.html dans votre navigateur.
+Vous devrez ensuite sélectionner un texte dans les fichiers de votre ordinateur.
+
+Les textes doivent être sous forme de fichier .txt. Chaque mot est écrit sur une ligne.
