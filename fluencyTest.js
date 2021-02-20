@@ -46,7 +46,11 @@ const Parser = class {
 		return new Promise((accept, reject) => {
 			const reader = new FileReader();
 	        reader.onload = (e) => {
-	            const contents = reader.result;
+	            let contents = reader.result;
+
+	            contents = contents.replace(/(\r?\n){3,}/g, '<br><br>\n');
+	            contents = contents.replace(/(\r?\n){2}/g, '<br>\n');
+
 	            const lines = contents.split('\n');
 	       
 	       		accept(lines);
