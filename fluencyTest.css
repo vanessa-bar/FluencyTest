@@ -1,0 +1,77 @@
+#container {
+	text-align: justify;
+	width: 800px;
+	margin: auto;
+	font-family: sans-serif;
+	font-size: 20px;
+}
+
+#container > h1 {
+	text-align: center;
+	margin-bottom: 30px;
+}
+
+p {
+	margin: 5px 0;
+}
+
+span {
+	padding: 0 5px;
+	cursor: pointer;
+
+	/* Désactiver sélection du texte au double-clic */
+	-webkit-user-select: none; /* webkit (safari, chrome) browsers */
+	-moz-user-select: none; /* mozilla browsers */
+	-khtml-user-select: none; /* webkit (konqueror) browsers */
+	-ms-user-select: none; /* IE10+ */
+}
+
+span.wrong {
+	color: red;
+}
+
+span.end {
+	text-decoration: underline;
+}
+
+.italic {
+	font-style: italic;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.button {
+	cursor: pointer;
+	margin: 30px auto 0 auto;
+	background: #dedede;
+	padding: 10px 5px;
+	width: 200px;
+	text-align: center;
+}
+
+#textContainer {
+	margin-top: 25px;
+	border: 1px solid;
+	padding: 5px;
+}
+
+#chronoText {
+	text-align: center;
+	margin-bottom: 5px;
+}
+
+#chronoBox {
+	height: 12px;
+	background: #dedede;
+}
+
+#chronoPercent {
+	height: inherit;
+	background: #808080;
+}
+
+#endContainer {
+	margin-top: 20px;
+}
