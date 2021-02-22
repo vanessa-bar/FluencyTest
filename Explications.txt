@@ -2,3 +2,6 @@ Pour lancer un test de fluence, il suffit d'ouvrir index.html dans votre navigat
 Vous devrez ensuite sélectionner un texte dans les fichiers de votre ordinateur.
 
 Les textes doivent être sous forme de fichier .txt. Chaque mot est écrit sur une ligne.
+
+Pour revenir à la ligne, laissez une ligne vide.
+Pour sauter une ligne, laissez deux lignes vides.

@@ -319,4 +319,3 @@ const FluencyTestView = class {
 };
 
 MainApp.initialize();
-// FluencyTest.initialize();
